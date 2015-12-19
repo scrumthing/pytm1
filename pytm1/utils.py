@@ -20,8 +20,7 @@ import requests
 import json
 import os
 
-
-class common:
+class utils:
     def __init__(self, tm1Base='http://localhost:8000/api/v1/', tm1AdminName='admin', tm1AdminPW='apple', debugLevel=0):
         """
             the default parameters for this class
@@ -41,6 +40,7 @@ class common:
         self.dbConnection.verify = False
         self.dbConnection.headers = {'content-type': 'application/json'}
 
+
     def errorHandling(self, taskname, restCall, result, payload=""):
         """
             just a little helper function
@@ -57,7 +57,7 @@ class common:
                     print("The following body was be used:")
                     print(payload)
                 print("The following result was returned:")
-                print(result.text)
+                print(self.prettyPrintJson(result))
         else:
             if self.debugLevel >= 1:
                 print("> " + taskname + " was not succesful.")
@@ -68,25 +68,35 @@ class common:
                     print("The following body was be used:")
                     print(payload)
                 print("The following result was returned:")
-                print(result.text)
+                print(self.prettyPrintJson(result))
 
-    def convertJsonToList(self, result, jsonKey='value'):
-        '''Takes a JSON Response and Creates a List for a Specific Key'''
-        list = []
-        parent = json.loads(result.text)["rows"]
+        return 1
+
+    def convertJsonToList(self, result, jsonKey='Name'):
+        """
+            Takes a JSON Response and Creates a List for a Specific Key
+        """
+
+        listOfObjects = []
+        parent = json.loads(result)["value"]
         for item in parent:
             object = item[jsonKey]
             if object[0] != '}':
-                list.append(object)
-        return list
+                listOfObjects.append(object)
+        return listOfObjects
+
 
     def prettyPrintJson(self, result):
-        '''Please insert comment here!'''
+        """Please insert comment here!"""
+
         prettyResult = (json.dumps(json.loads(result.text), indent=4, sort_keys=True))
+
         return prettyResult
 
+
     # region basic http functions
-    def tm1GET(self, restCall, taskname):
+
+    def tm1GET(self, restCall, taskname=""):
         '''
             General GET Operation on TM1
         '''
@@ -97,26 +107,65 @@ class common:
 
         result = self.dbConnection.get(restCall)
         self.errorHandling(taskname, restCall, result, payload)
+        return result
 
 
-    def tm1Post(self, restCall, body, taskname):
+    def tm1Post(self, restCall, body, taskname=""):
         '''
             General POST Operation on TM1
         '''
 
         if taskname == "":
             taskname = "DEFAULT POST-operation"
+
         payload = json.dumps(json.loads(body))
 
         result = self.dbConnection.post(restCall, data=payload)
         self.errorHandling(taskname, restCall, result, payload)
 
 
-    def tm1Delete(self, restCall):
-        '''General DELETE Operation on TM1'''
+    def tm1Delete(self, restCall, taskname=""):
+        '''
+            General POST Operation on TM1
+        '''
 
-        result = self.dbConnection.delete(restCall)
-        self.checkHttpResult(restCall, result)
-        return result
+        if taskname == "":
+            taskname = "DEFAULT DELETE-operation"
+
+        payload = ""
+
+        # check, if ressource exists
+        checkHttp = self.tm1GET(restCall)
+        if checkHttp.ok:
+            result = self.dbConnection.delete(restCall)
+            self.errorHandling(taskname, restCall, result, payload)
+        else:
+            print("ERROR - Ressource on " + restCall + " was not found!")
+
 
     # endregion
+
+    def createListOfObjects(self, tm1Object="Users('Admin')"):
+        """
+            Requests a specific objekt from tm1 server and sends the recieved json to the function convertjsontolist.
+        """
+
+        taskname = "GET List Of " + tm1Object
+
+        restCall = self.tm1Base + tm1Object
+
+        result = self.tm1GET(restCall, taskname)
+        ListOfObjects = self.convertJsonToList(result.text)
+        return ListOfObjects
+
+if __name__ == '__main__':
+
+    print("ATTENTION - This is not intended for direct use.")
+
+    tm1Base = 'https://txtm1.tablonautix.com/api/v1/'
+    tm1AdminName = 'admin'
+    tm1AdminPW = 'apple'
+    debugLevel = 1
+
+    # initialize script
+    tm1 = utils(tm1Base, tm1AdminName, tm1AdminPW, debugLevel)
