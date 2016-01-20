@@ -18,6 +18,17 @@ class tm1_CreateStructure(common):
         # initialize Parent Class
         common.__init__(self, tm1Base, tm1AdminName, tm1AdminPW, debugLevel)
 
+
+    def getListOf_Dimensions(self):
+        """Please insert comment here!"""
+        return common.createListOfObjects(self, "Dimensions")
+
+
+    def getListOf_Cubes(self):
+        """Please insert comment here!"""
+        return common.createListOfObjects(self, "Cubes")
+
+
     def createDimension(self, tm1DimensionName):
         '''Creates a Dimension'''
 
@@ -27,6 +38,7 @@ class tm1_CreateStructure(common):
         body = '{"Name": "' + tm1DimensionName + '"}'
 
         common.tm1Post(self, restCall, body, taskname)
+
 
     def createDimensionElement(self, tm1DimensionName, tm1ElementName, tm1DimensionHierarchy=""):
         '''Adds an Element in a specific Dimension'''
@@ -40,6 +52,7 @@ class tm1_CreateStructure(common):
         body = '{"Name": "' + tm1ElementName + '"}'
 
         common.tm1Post(self, restCall, body, taskname)
+
 
     def createDimensionAttribute(self, tm1DimensionName, tm1AttributName, tm1AttributType="String", tm1DimensionHierarchy=""):
         '''Adds an Element in a specific Dimension'''
@@ -73,8 +86,8 @@ class tm1_CreateStructure(common):
                + '",  "Component@odata.bind": "' + urlElementName \
                + '",  "Weight": 1.0}'
 
-
         common.tm1Post(self, restCall, body, taskname)
+
 
     def setElementAttribute(self, tm1DimensionName, tm1ElementName, tm1AttributName, tm1AttributValue, tm1DimensionHierarchy=""):
         '''Untested because IBM has problems with PATCH and DELETE on this ressource'''
@@ -95,32 +108,14 @@ class tm1_CreateStructure(common):
         common.tm1Post(self, restCall, body, taskname)
 
 
-    def createCube(self, tm1CubeName, tm1ListOfDimensionsForCube):
+    def createOrUpdateCube(self, tm1CubeName, tm1ListOfDimensionsForCube):
         '''Creates a Cube'''
 
-        taskname = "CREATE Cube - " + tm1CubeName
-
-        temp_DimensionsForCube = ""
-        for tm1DimensionName in tm1ListOfDimensionsForCube:
-            temp = '"Dimensions(' + "'" + tm1DimensionName + "'" + ')", '
-            temp_DimensionsForCube = temp_DimensionsForCube + temp
-        temp_DimensionsForCube = temp_DimensionsForCube[:-2]
-
-        restCall = self.tm1Base + "Cubes"
-        body = '{"Name": "' + tm1CubeName + '", "Dimensions@odata.bind": [' + temp_DimensionsForCube + ']}'
-
-        common.tm1Post(self, restCall, body, taskname)
+        common.createOrUpdateODataRelationship(self, tm1CubeName, "Cubes", "Dimensions", tm1ListOfDimensionsForCube)
 
 
 if __name__ == '__main__':
 
     print("ATTENTION - This is not intended for direct use.")
 
-    tm1Base = 'https://txtm1.tablonautix.com/api/v1/'
-    tm1AdminName = 'admin'
-    tm1AdminPW = 'apple'
-    debugLevel = 1
-
-    # initialize script
-    tm1 = tm1_CreateStructure(tm1Base, tm1AdminName, tm1AdminPW, debugLevel)
 

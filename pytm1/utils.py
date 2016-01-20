@@ -96,7 +96,7 @@ class utils:
 
     # region basic http functions
 
-    def tm1GET(self, restCall, taskname=""):
+    def tm1Get(self, restCall, taskname=""):
         '''
             General GET Operation on TM1
         '''
@@ -124,6 +124,20 @@ class utils:
         self.errorHandling(taskname, restCall, result, payload)
 
 
+    def tm1Patch(self, restCall, body, taskname=""):
+        '''
+            General POST Operation on TM1
+        '''
+
+        if taskname == "":
+            taskname = "DEFAULT PATCH-operation"
+
+        payload = json.dumps(json.loads(body))
+
+        result = self.dbConnection.patch(restCall, data=payload)
+        self.errorHandling(taskname, restCall, result, payload)
+
+
     def tm1Delete(self, restCall, taskname=""):
         '''
             General POST Operation on TM1
@@ -135,7 +149,7 @@ class utils:
         payload = ""
 
         # check, if ressource exists
-        checkHttp = self.tm1GET(restCall)
+        checkHttp = self.tm1Get(restCall)
         if checkHttp.ok:
             result = self.dbConnection.delete(restCall)
             self.errorHandling(taskname, restCall, result, payload)
@@ -154,18 +168,36 @@ class utils:
 
         restCall = self.tm1Base + tm1Object
 
-        result = self.tm1GET(restCall, taskname)
+        result = self.tm1Get(restCall, taskname)
         ListOfObjects = self.convertJsonToList(result.text)
         return ListOfObjects
+
+
+    def createOrUpdateODataRelationship(self, mainObject, mainObjectType, entity, listOfObjects):
+        '''Adds an User to multiple groups'''
+
+        taskname = "Create new relationship for " + mainObjectType + " and " + entity
+
+        tempList = ""
+        for object in listOfObjects:
+            temp = '"' + entity + '(' + "'" + object + "'" + ')", '
+            tempList = tempList + temp
+        tempList = tempList[:-2]
+
+        restCall = self.tm1Base + mainObjectType + "('" + mainObject + "')"
+        body = '{"Name": "' + mainObject + '", "' + entity + '@odata.bind": [' + tempList + ']}'
+
+        # check, if object already exists
+        result = self.tm1Get(restCall, "Check, if object already exists.")
+
+        if result.ok:
+            self.tm1Patch(restCall, body, taskname)
+        else:
+            restCall = self.tm1Base + mainObjectType
+            self.tm1Post(restCall, body, taskname)
+
 
 if __name__ == '__main__':
 
     print("ATTENTION - This is not intended for direct use.")
 
-    tm1Base = 'https://txtm1.tablonautix.com/api/v1/'
-    tm1AdminName = 'admin'
-    tm1AdminPW = 'apple'
-    debugLevel = 1
-
-    # initialize script
-    tm1 = utils(tm1Base, tm1AdminName, tm1AdminPW, debugLevel)

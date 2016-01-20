@@ -18,30 +18,15 @@ class tm1_basicstructureinformation(common):
         # initialize Parent Class
         common.__init__(self, tm1Base, tm1AdminName, tm1AdminPW, debugLevel)
 
-    def getListOf_Dimensions(self):
-        """Please insert comment here!"""
-        return common.createListOfObjects(self, "Dimensions")
-
-
-    def getListOf_Cubes(self):
-        """Please insert comment here!"""
-        return common.createListOfObjects(self, "Cubes")
 
     def getListOf_Processes(self):
         """Please insert comment here!"""
         return common.createListOfObjects(self, "Processes")
 
+
     def getListOf_Chores(self):
         """Please insert comment here!"""
         return common.createListOfObjects(self, "Chores")
-
-    def getListOf_Users(self):
-        """Please insert comment here!"""
-        return common.createListOfObjects(self, "Users")
-
-    def getListOf_Groups(self):
-        """Please insert comment here!"""
-        return common.createListOfObjects(self, "Groups")
 
 
 if __name__ == '__main__':
@@ -55,9 +40,6 @@ if __name__ == '__main__':
 
     # initialize script
     tm1 = tm1_basicstructureinformation(tm1Base, tm1AdminName, tm1AdminPW, debugLevel)
-    print(tm1.getListOf_Dimensions())
-    print(tm1.getListOf_Cubes())
+
     print(tm1.getListOf_Processes())
     print(tm1.getListOf_Chores())
-    print(tm1.getListOf_Users())
-    print(tm1.getListOf_Groups())
