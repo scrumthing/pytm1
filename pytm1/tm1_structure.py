@@ -5,7 +5,7 @@ import utils
 common = utils.utils
 
 
-class tm1_CreateStructure(common):
+class tm1_structure(common):
     """
         Please insert comment here!
     """

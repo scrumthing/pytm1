@@ -31,7 +31,7 @@ class utils:
         self.debugLevel = debugLevel
 
         # warnings because of ssl-certification problem of tm1
-        if debugLevel <= 1:
+        if debugLevel <= 3:
             requests.packages.urllib3.disable_warnings()
 
         # request session
@@ -149,7 +149,7 @@ class utils:
         payload = ""
 
         # check, if ressource exists
-        checkHttp = self.tm1Get(restCall)
+        checkHttp = self.tm1Get(restCall, "Check, if ressource to delete exists.")
         if checkHttp.ok:
             result = self.dbConnection.delete(restCall)
             self.errorHandling(taskname, restCall, result, payload)

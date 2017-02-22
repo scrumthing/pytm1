@@ -5,7 +5,7 @@ import utils
 common = utils.utils
 
 
-class tm1_basicstructureinformation(common):
+class tm1_loading(common):
     """
         Please insert comment here!
     """
@@ -27,6 +27,41 @@ class tm1_basicstructureinformation(common):
     def getListOf_Chores(self):
         """Please insert comment here!"""
         return common.createListOfObjects(self, "Chores")
+
+    def createProcess(self, tm1ProcessName, tm1ProcessProlog=""):
+        '''Creates a Process'''
+
+        taskname = "CREATE Process - " + tm1ProcessName
+
+        restCall = self.tm1Base + "Processes"
+        body = '{"Name": "' + tm1ProcessName + '", "PrologProcedure": "' + tm1ProcessProlog + '"}'
+        print(body)
+
+        common.tm1Post(self, restCall, body, taskname)
+
+    def deleteProcess(self, tm1ProcessName ):
+        '''Deletes a Process'''
+
+        taskname = "DELETE Process - " + tm1ProcessName
+
+        restCall = self.tm1Base + "Processes('" + tm1ProcessName + "')"
+
+        common.tm1Delete(self, restCall, taskname)
+
+    def executeProcess(self, tm1ProcessName ):
+        '''Executes a Process'''
+
+        taskname = "EXECUTE Process - " + tm1ProcessName
+
+        restCall = self.tm1Base + "Processes('" + tm1ProcessName + "')/tm1.Execute"
+
+        body = '{"Parameters": \
+                       [\
+                    ]\
+                }'
+
+        common.tm1Post(self, restCall, body, taskname)
+
 
 
 if __name__ == '__main__':
