@@ -41,7 +41,7 @@ setup(
     tests_require=['pytest'],
     install_requires=['Flask>=0.10.1',
                     'Flask-SQLAlchemy>=1.0',
-                    'SQLAlchemy==0.8.2',
+                    'SQLAlchemy==1.3.0',
                     ],
     cmdclass={'test': PyTest},
     author_email='jeff@jeffknupp.com',
